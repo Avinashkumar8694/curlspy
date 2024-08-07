@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 const puppeteer = require('puppeteer');
+const chrome = require('chrome-aws-lambda');
 const fs = require('fs');
 const path = require('path');
 const { Command } = require('commander');
-const os = require('os');
 
 const program = new Command();
 
@@ -18,7 +18,6 @@ program
 program.parse(process.argv);
 
 const options = program.opts();
-
 const skipKeywords = options.skipKeywords.split(',');
 const httpMethods = options.methods.split(',');
 const saveDirectory = options.directory;
@@ -27,7 +26,13 @@ const urlsFilePath = path.join(saveDirectory, 'urls.json');
 const curlCommandsFilePath = path.join(saveDirectory, 'curl_commands.txt');
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: false, defaultViewport: null });
+    const browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'] ,
+        defaultViewport: null,
+        executablePath: await chrome.executablePath,
+        headless:  false,
+    });
+
     const page = await browser.newPage();
 
     const uniqueUrls = new Set();

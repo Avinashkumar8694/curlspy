@@ -27,8 +27,9 @@
   },
   "homepage": "https://github.com/Avinashkumar8694/curlspy/blob/master/README.md",
   "dependencies": {
+    "chrome-aws-lambda": "^10.1.0",
     "commander": "^9.4.1",
-    "puppeteer": "^14.4.1",
-    "fs": "0.0.1-security"
+    "fs": "0.0.1-security",
+    "puppeteer": "^23.0.1"
   }
 }
