@@ -31,7 +31,9 @@
     "chrome-aws-lambda": "^10.1.0",
     "commander": "^9.4.1",
     "curlconverter": "^4.10.1",
-    "fs": "0.0.1-security",
     "puppeteer": "^23.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
