@@ -14,7 +14,7 @@ const convertCurlToJson = (curlCommand) => {
 };
 
 // Function to process the cURL commands file
-const processCurlFile = (inputFilePath, outputFilePath) => {
+export const processCurlFile = (inputFilePath, outputFilePath) => {
     try {
         // Read cURL commands from the file
         const curlCommands = fs.readFileSync(inputFilePath, 'utf8').split('\n').filter(line => line.trim() !== '');

@@ -66,7 +66,7 @@ const generateSwagger = (curlDetails) => {
 };
 
 // Function to process JSON file and generate Swagger
-const processJsonFile = (inputFilePath, outputFilePath) => {
+export const processJsonFile = (inputFilePath, outputFilePath) => {
     try {
         // Read JSON data from the file
         const jsonData = JSON.parse(fs.readFileSync(inputFilePath, 'utf8'));

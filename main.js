@@ -1,18 +1,15 @@
 #!/usr/bin/env node
 
-// const puppeteer = require('puppeteer');
-import * as puppeteer from 'puppeteer'
-// const chrome = require('chrome-aws-lambda');
-import * as chrome from 'chrome-aws-lambda'
-// const fs = require('fs');
-import * as fs from 'fs'
-// const path = require('path');
-import * as path from 'path'
-// const { Command } = require('commander');
-import { Command } from 'commander'
-// const { execSync } = require('child_process');
-import { execSync } from 'child_process'
+// Import required modules
+import * as puppeteer from 'puppeteer';
+import * as chrome from 'chrome-aws-lambda';
+import * as fs from 'fs';
+import * as path from 'path';
+import { Command } from 'commander';
+import { processCurlFile } from './curl_to_json.js';
+import { processJsonFile } from './generate_swagger_from_json.js';
 
+// Initialize the command-line interface
 const program = new Command();
 
 program
@@ -34,21 +31,31 @@ const saveDirectory = options.directory;
 
 const urlsFilePath = path.join(saveDirectory, 'urls.json');
 const curlCommandsFilePath = path.join(saveDirectory, 'curl_commands.txt');
+const jsonFilePath = path.join(saveDirectory, options.jsonFile);
+const swaggerFilePath = path.join(saveDirectory, options.swaggerFile);
+
+// Create necessary files if they don't exist
+const createFileIfNotExists = (filePath) => {
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, '', 'utf-8');
+    }
+};
+
+// Ensure necessary files are created
+createFileIfNotExists(curlCommandsFilePath);
+createFileIfNotExists(jsonFilePath);
 
 if (options.generateSwagger) {
     // Generate Swagger specification from cURL commands
-    const jsonFilePath = options.jsonFile;
-    const swaggerFilePath = options.swaggerFile;
-
-    // Convert cURL commands to JSON
+    // Ensure the JSON file is created before processing
     try {
         console.log('Converting cURL commands to JSON...');
-        execSync(`node curl_to_json.js`, { stdio: 'inherit' });
+        processCurlFile(curlCommandsFilePath, jsonFilePath);
 
         // Check if the JSON file was created
         if (fs.existsSync(jsonFilePath)) {
             console.log('Generating Swagger specification from JSON...');
-            execSync(`node generate_swagger_from_json.js`, { stdio: 'inherit' });
+            processJsonFile(jsonFilePath, swaggerFilePath);
         } else {
             console.error(`Error: JSON file ${jsonFilePath} not found.`);
         }
@@ -76,7 +83,7 @@ if (options.generateSwagger) {
             console.log(`Loaded ${storedUrls.length} URLs from ${urlsFilePath}`);
         }
 
-        // Load existing curl commands from file if it exists
+        // Load existing cURL commands from file if it exists
         if (fs.existsSync(curlCommandsFilePath)) {
             const storedCurlCommands = fs.readFileSync(curlCommandsFilePath, 'utf-8').split('\n');
             storedCurlCommands.forEach(command => {
@@ -84,7 +91,7 @@ if (options.generateSwagger) {
                     curlCommands.push(command);
                 }
             });
-            console.log(`Loaded ${storedCurlCommands.length} curl commands from ${curlCommandsFilePath}`);
+            console.log(`Loaded ${storedCurlCommands.length} cURL commands from ${curlCommandsFilePath}`);
         }
 
         // Function to save unique URLs to a file
@@ -107,7 +114,7 @@ if (options.generateSwagger) {
             if (!uniqueUrls.has(url)) {
                 uniqueUrls.add(url);
 
-                // Generate curl command
+                // Generate cURL command
                 const headers = request.headers();
                 let curlCommand = `curl '${url}'`;
 
@@ -122,14 +129,14 @@ if (options.generateSwagger) {
 
                 curlCommands.push(curlCommand);
 
-                // Append the new curl command to the file
+                // Append the new cURL command to the file
                 fs.appendFileSync(curlCommandsFilePath, curlCommand + '\n', 'utf-8');
             }
             request.continue();
         });
 
         // Keep the browser open to continue recording
-        console.log('Browser is open. Navigate to different URLs to record curl commands.');
+        console.log('Browser is open. Navigate to different URLs to record cURL commands.');
 
         // Save URLs periodically
         const saveInterval = setInterval(saveUniqueUrls, options.interval * 1000); // Save at specified interval
@@ -142,5 +149,8 @@ if (options.generateSwagger) {
         //     clearInterval(saveInterval);
         //     await browser.close();
         // }, 600000); // Close after 10 minutes
+
+        // Close the browser
+        // await browser.close();
     })();
 }
