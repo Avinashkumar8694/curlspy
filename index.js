@@ -90,7 +90,6 @@ const curlCommandsFilePath = path.join(saveDirectory, 'curl_commands.txt');
             }
 
             curlCommands.push(curlCommand);
-            console.log(curlCommand);
 
             // Append the new curl command to the file
             fs.appendFileSync(curlCommandsFilePath, curlCommand + '\n', 'utf-8');
