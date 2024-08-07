@@ -21,7 +21,7 @@ To install `curlspy` globally, use npm:
 
     --skipKeywords (-k): Comma separated skip keywords (default: "dist,assets,embed,Icons,static,auth,constants,locales,dcp-oauth,interaction,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co")
     --methods (-m): HTTP methods to scrape (default: "POST,PUT,DELETE,GET")
-    --url (-u): URL to scrape (default: "https://dcp-uat.alrajhitakaful.com/en/personal/car-insurance")
+    --url (-u): URL to scrape (default: "https://www.google.com")
     --interval (-i): Interval to save to file in seconds (default: 15)
 ```
 ## Example
