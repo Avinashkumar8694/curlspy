@@ -34,16 +34,16 @@ const curlCommandsFilePath = path.join(saveDirectory, 'curl_commands.txt');
 const jsonFilePath = path.join(saveDirectory, options.jsonFile);
 const swaggerFilePath = path.join(saveDirectory, options.swaggerFile);
 
-// Create necessary files if they don't exist
-const createFileIfNotExists = (filePath) => {
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, '', 'utf-8');
-    }
-};
+// // Create necessary files if they don't exist
+// const createFileIfNotExists = (filePath) => {
+//     if (!fs.existsSync(filePath)) {
+//         fs.writeFileSync(filePath, '', 'utf-8');
+//     }
+// };
 
-// Ensure necessary files are created
-createFileIfNotExists(curlCommandsFilePath);
-createFileIfNotExists(jsonFilePath);
+// // Ensure necessary files are created
+// createFileIfNotExists(curlCommandsFilePath);
+// createFileIfNotExists(jsonFilePath);
 
 if (options.generateSwagger) {
     // Generate Swagger specification from cURL commands

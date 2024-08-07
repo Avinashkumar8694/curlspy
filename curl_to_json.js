@@ -39,7 +39,7 @@ export const processCurlFile = (inputFilePath, outputFilePath) => {
 };
 
 // Example usage
-const inputFilePath = 'curl_commands.txt'; // Input file with cURL commands
-const outputFilePath = 'curl-to-json.json'; // Output file for JSON results
+// const inputFilePath = 'curl_commands.txt'; // Input file with cURL commands
+// const outputFilePath = 'curl-to-json.json'; // Output file for JSON results
 
-processCurlFile(inputFilePath, outputFilePath);
+// processCurlFile(inputFilePath, outputFilePath);

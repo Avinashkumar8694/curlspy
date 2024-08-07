@@ -97,7 +97,7 @@ export const processJsonFile = (inputFilePath, outputFilePath) => {
 };
 
 // Example usage
-const inputFilePath = 'curl-to-json.json'; // Input file with JSON data
-const outputFilePath = 'swagger.json'; // Output file for Swagger JSON
+// const inputFilePath = 'curl-to-json.json'; // Input file with JSON data
+// const outputFilePath = 'swagger.json'; // Output file for Swagger JSON
 
-processJsonFile(inputFilePath, outputFilePath);
+// processJsonFile(inputFilePath, outputFilePath);
