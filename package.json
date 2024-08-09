@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/Avinashkumar8694/curlspy/issues"
   },
-  "homepage": "https://github.com/Avinashkumar8694/curlspy/blob/master/README.md",
+  "homepage": "https://github.com/Avinashkumar8694/curlspy",
   "dependencies": {
     "chrome-aws-lambda": "^10.1.0",
     "commander": "^9.4.1",
