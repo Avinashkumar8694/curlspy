@@ -17,6 +17,7 @@ program
     .option('-m, --methods <methods>', 'HTTP methods to scrape', 'POST,PUT,DELETE,GET')
     .option('-u, --url <url>', 'URL to scrape', 'https://www.google.com')
     .option('-i, --interval <interval>', 'Interval to save to file in seconds', '15')
+    .option('-r, --restore <restore>', 'option to load exist curl and urls to continue with the same')
     .option('-d, --directory <directory>', 'Directory to save files', process.cwd())
     .option('-g, --generate-swagger', 'Generate Swagger specification from cURL commands')
     .option('-j, --json-file <file>', 'Path to the JSON file with cURL commands', 'curl-to-json.json')
@@ -28,6 +29,7 @@ const options = program.opts();
 const skipKeywords = options.skipKeywords.split(',');
 const httpMethods = options.methods.split(',');
 const saveDirectory = options.directory;
+const restore = options.restore;
 
 const urlsFilePath = path.join(saveDirectory, 'urls.json');
 const curlCommandsFilePath = path.join(saveDirectory, 'curl_commands.txt');
@@ -40,6 +42,16 @@ const swaggerFilePath = path.join(saveDirectory, options.swaggerFile);
 //         fs.writeFileSync(filePath, '', 'utf-8');
 //     }
 // };
+
+// Create file
+const createFile = (filePath, data) => {
+    fs.writeFileSync(filePath, data, 'utf-8');
+};
+
+if(!restore){
+    createFile(curlCommandsFilePath, '');
+    createFile(jsonFilePath, '[]');
+}
 
 // // Ensure necessary files are created
 // createFileIfNotExists(curlCommandsFilePath);
