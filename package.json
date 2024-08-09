@@ -1,6 +1,6 @@
 {
   "name": "curlspy",
-  "version": "1.0.10",
+  "version": "1.0.8",
   "description": "A CLI tool to scrape URLs and generate curl commands using Puppeteer",
   "main": "main.js",
   "type": "module",
@@ -26,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/Avinashkumar8694/curlspy/issues"
   },
-  "homepage": "https://github.com/Avinashkumar8694/curlspy",
+  "homepage": "https://github.com/Avinashkumar8694/curlspy/blob/master/README.md",
   "dependencies": {
     "chrome-aws-lambda": "^10.1.0",
     "commander": "^9.4.1",
