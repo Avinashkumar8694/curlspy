@@ -2,7 +2,7 @@
   "name": "curlspy",
   "version": "1.0.4",
   "description": "A CLI tool to scrape URLs and generate curl commands using Puppeteer",
-  "main": "index.js",
+  "main": "main.js",
   "type": "module",
   "bin": {
     "curlspy": "./main.js"
