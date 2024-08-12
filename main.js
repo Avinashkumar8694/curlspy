@@ -15,9 +15,10 @@ const program = new Command();
 program
     .option('-k, --skipKeywords <keywords>', 'Comma separated skip keywords', 'dist,assets,embed,Icons,static,auth,constants,locales,dcp-oauth,interaction,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co')
     .option('-m, --methods <methods>', 'HTTP methods to scrape', 'POST,PUT,DELETE,GET')
+    .option('-a, --all <all>', 'collect all curl', 'true')
     .option('-u, --url <url>', 'URL to scrape', 'https://www.google.com')
     .option('-i, --interval <interval>', 'Interval to save to file in seconds', '15')
-    .option('-r, --restore <restore>', 'option to load exist curl and urls to continue with the same')
+    .option('-r, --restore <restore>', 'option to load exist curl and urls to continue with the same', 'false')
     .option('-d, --directory <directory>', 'Directory to save files', process.cwd())
     .option('-g, --generate-swagger', 'Generate Swagger specification from cURL commands')
     .option('-j, --json-file <file>', 'Path to the JSON file with cURL commands', 'curl-to-json.json')
@@ -29,8 +30,8 @@ const options = program.opts();
 const skipKeywords = options.skipKeywords.split(',');
 const httpMethods = options.methods.split(',');
 const saveDirectory = options.directory;
-const restore = options.restore;
-
+const restore = options.restore == 'true';
+const all = options.all;
 const urlsFilePath = path.join(saveDirectory, 'urls.json');
 const curlCommandsFilePath = path.join(saveDirectory, 'curl_commands.txt');
 const jsonFilePath = path.join(saveDirectory, options.jsonFile);
@@ -122,8 +123,8 @@ if (options.generateSwagger) {
                 request.continue();
                 return;
             }
-
-            if (!uniqueUrls.has(url)) {
+            const _continue = all == 'true' ? true : !uniqueUrls.has(url)
+            if (_continue) {
                 uniqueUrls.add(url);
 
                 // Generate cURL command
