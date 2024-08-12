@@ -38,6 +38,7 @@ To install CurlSpy, you need to have [Node.js](https://nodejs.org/) version 18 o
 - -m, --methods <methods>: HTTP methods to scrape. (Default: POST,PUT,DELETE,GET)
 - -i, --interval <interval>: Interval to save to file in seconds. (Default: 15)
 - -r, --restore <restore>: option to load exist curl and urls to continue with the same otherwise it will create new
+- -a,  --all <all>: collect all curl, defaults to true
 
 ## Generate Swagger Specification
 
