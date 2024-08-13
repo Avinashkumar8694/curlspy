@@ -50,8 +50,10 @@ const createFile = (filePath, data) => {
 };
 
 if(!restore){
-    createFile(curlCommandsFilePath, '');
-    createFile(jsonFilePath, '[]');
+    if(!options.generateSwagger){
+        createFile(curlCommandsFilePath, '');
+        createFile(jsonFilePath, '[]');
+    }
 }
 
 // // Ensure necessary files are created
