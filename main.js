@@ -15,6 +15,7 @@ const program = new Command();
 program
     .option('-sk, --skipKeywords <keywords>', 'Comma separated skip keywords', 'dist,assets,embed,Icons,static,auth,constants,locales,dcp-oauth,interaction,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co')
     .option('-ik, --includeKeywords <keywords>', 'Comma separated include keywords', '')
+    .option('-b, --serverUrl <keywords>', 'provide server url', '')
     .option('-m, --methods <methods>', 'HTTP methods to scrape', 'POST,PUT,DELETE,GET')
     .option('-a, --all <all>', 'collect all curl', 'true')
     .option('-u, --url <url>', 'URL to scrape', 'https://www.google.com')
@@ -33,6 +34,7 @@ const includeKeywords = options.includeKeywords?.length ? options.includeKeyword
 const httpMethods = options.methods.split(',');
 const saveDirectory = options.directory;
 const restore = options.restore == 'true';
+const serverUrl = options.serverUrl;
 const all = options.all;
 const urlsFilePath = path.join(saveDirectory, 'urls.json');
 const curlCommandsFilePath = path.join(saveDirectory, 'curl_commands.txt');
@@ -72,7 +74,7 @@ if (options.generateSwagger) {
         // Check if the JSON file was created
         if (fs.existsSync(jsonFilePath)) {
             console.log('Generating Swagger specification from JSON...');
-            processJsonFile(jsonFilePath, swaggerFilePath);
+            processJsonFile(jsonFilePath, swaggerFilePath,serverUrl);
         } else {
             console.error(`Error: JSON file ${jsonFilePath} not found.`);
         }

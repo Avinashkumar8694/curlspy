@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 // Function to generate Swagger specification from parsed cURL details
-const generateSwagger = (curlDetails) => {
+const generateSwagger = (curlDetails, baseURL) => {
     const {
         url,
         method = 'get',
@@ -40,6 +40,11 @@ const generateSwagger = (curlDetails) => {
             title: 'Converted cURL to Swagger',
             version: '1.0.0'
         },
+        servers: [
+            {
+                url: baseURL // Base URL for the server
+            }
+        ],
         paths: {
             [new URL(url).pathname]: {
                 [method.toLowerCase()]: {
@@ -66,7 +71,7 @@ const generateSwagger = (curlDetails) => {
 };
 
 // Function to process JSON file and generate Swagger
-export const processJsonFile = (inputFilePath, outputFilePath) => {
+export const processJsonFile = (inputFilePath, outputFilePath, baseURL) => {
     try {
         // Read JSON data from the file
         const jsonData = JSON.parse(fs.readFileSync(inputFilePath, 'utf8'));
@@ -74,7 +79,7 @@ export const processJsonFile = (inputFilePath, outputFilePath) => {
         // Generate Swagger for each entry in the JSON file
         const swaggerPaths = {};
         jsonData.forEach(curlDetails => {
-            const swagger = generateSwagger(curlDetails);
+            const swagger = generateSwagger(curlDetails, baseURL);
             Object.assign(swaggerPaths, swagger.paths);
         });
 
@@ -85,6 +90,11 @@ export const processJsonFile = (inputFilePath, outputFilePath) => {
                 title: 'Combined Swagger Specification',
                 version: '1.0.0'
             },
+            servers: [
+                {
+                    url: baseURL
+                }
+            ],
             paths: swaggerPaths
         };
 
@@ -99,5 +109,6 @@ export const processJsonFile = (inputFilePath, outputFilePath) => {
 // Example usage
 // const inputFilePath = 'curl-to-json.json'; // Input file with JSON data
 // const outputFilePath = 'swagger.json'; // Output file for Swagger JSON
+// const baseURL = 'https://api.example.com'; // Base URL for the server
 
-// processJsonFile(inputFilePath, outputFilePath);
+// processJsonFile(inputFilePath, outputFilePath, baseURL);
