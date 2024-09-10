@@ -34,7 +34,9 @@ To install CurlSpy, you need to have [Node.js](https://nodejs.org/) version 18 o
 ### Options:
 - -u, --url <url>: The URL to scrape. (Default: https://www.google.com)
 - -d, --directory <directory>: Directory to save files. (Default: Current working directory)
-- -k, --skipKeywords <keywords>: Comma-separated list of keywords to skip URLs. (Default: dist,assets,embed,Icons,static,auth,constants,locales,dcp-oauth,interaction,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co)
+- -ik, --includeKeywords <keywords>', 'Comma separated include keywords', ''
+- -b, --serverUrl <keywords>': 'provide server base url for swagger', ''
+- -sk, --skipKeywords <keywords>: Comma-separated list of keywords to skip URLs. (Default: dist,assets,embed,Icons,static,auth,constants,locales,dcp-oauth,interaction,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co)
 - -m, --methods <methods>: HTTP methods to scrape. (Default: POST,PUT,DELETE,GET)
 - -i, --interval <interval>: Interval to save to file in seconds. (Default: 15)
 - -r, --restore <restore>: option to load exist curl and urls to continue with the same otherwise it will create new
