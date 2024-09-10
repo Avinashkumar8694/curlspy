@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 // Function to generate Swagger specification from parsed cURL details
-const generateSwagger = (curlDetails, baseURL) => {
+const generateSwagger = (curlDetails, baseURLs) => {
     const {
         url,
         method = 'get',
@@ -33,6 +33,9 @@ const generateSwagger = (curlDetails, baseURL) => {
         };
     }
 
+    // Convert base URLs array to server objects for Swagger
+    const servers = baseURLs.map(url => ({ url }));
+
     // Construct the Swagger specification
     const swagger = {
         openapi: '3.0.0',
@@ -40,11 +43,7 @@ const generateSwagger = (curlDetails, baseURL) => {
             title: 'Converted cURL to Swagger',
             version: '1.0.0'
         },
-        servers: [
-            {
-                url: baseURL // Base URL for the server
-            }
-        ],
+        servers: servers, // Add multiple server URLs
         paths: {
             [new URL(url).pathname]: {
                 [method.toLowerCase()]: {
@@ -71,7 +70,7 @@ const generateSwagger = (curlDetails, baseURL) => {
 };
 
 // Function to process JSON file and generate Swagger
-export const processJsonFile = (inputFilePath, outputFilePath, baseURL) => {
+export const processJsonFile = (inputFilePath, outputFilePath, baseURLs) => {
     try {
         // Read JSON data from the file
         const jsonData = JSON.parse(fs.readFileSync(inputFilePath, 'utf8'));
@@ -79,9 +78,12 @@ export const processJsonFile = (inputFilePath, outputFilePath, baseURL) => {
         // Generate Swagger for each entry in the JSON file
         const swaggerPaths = {};
         jsonData.forEach(curlDetails => {
-            const swagger = generateSwagger(curlDetails, baseURL);
+            const swagger = generateSwagger(curlDetails, baseURLs);
             Object.assign(swaggerPaths, swagger.paths);
         });
+
+        // Convert base URLs array to server objects for Swagger
+        const servers = baseURLs.map(url => ({ url }));
 
         // Construct the final Swagger specification
         const finalSwagger = {
@@ -90,11 +92,7 @@ export const processJsonFile = (inputFilePath, outputFilePath, baseURL) => {
                 title: 'Combined Swagger Specification',
                 version: '1.0.0'
             },
-            servers: [
-                {
-                    url: baseURL
-                }
-            ],
+            servers: servers, // Add multiple server URLs
             paths: swaggerPaths
         };
 
@@ -109,6 +107,6 @@ export const processJsonFile = (inputFilePath, outputFilePath, baseURL) => {
 // Example usage
 // const inputFilePath = 'curl-to-json.json'; // Input file with JSON data
 // const outputFilePath = 'swagger.json'; // Output file for Swagger JSON
-// const baseURL = 'https://api.example.com'; // Base URL for the server
+// const baseURLs = ['https://api.example.com', 'https://api-backup.example.com']; // Array of base URLs for the server
 
-// processJsonFile(inputFilePath, outputFilePath, baseURL);
+// processJsonFile(inputFilePath, outputFilePath, baseURLs);

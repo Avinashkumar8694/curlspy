@@ -34,7 +34,7 @@ const includeKeywords = options.includeKeywords?.length ? options.includeKeyword
 const httpMethods = options.methods.split(',');
 const saveDirectory = options.directory;
 const restore = options.restore == 'true';
-const serverUrl = options.serverUrl;
+const serverUrl = options.serverUrl?.length ? options.serverUrl?.split(','):[];
 const all = options.all;
 const urlsFilePath = path.join(saveDirectory, 'urls.json');
 const curlCommandsFilePath = path.join(saveDirectory, 'curl_commands.txt');
