@@ -14,7 +14,7 @@ const program = new Command();
 
 program
     .option('-sk, --skipKeywords <keywords>', 'Comma separated skip keywords', 'dist,assets,embed,Icons,static,auth,constants,locales,dcp-oauth,interaction,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co')
-    .option('-ik, --includeKeywords <keywords>', '')
+    .option('-ik, --includeKeywords <keywords>', 'Comma separated include keywords', '')
     .option('-m, --methods <methods>', 'HTTP methods to scrape', 'POST,PUT,DELETE,GET')
     .option('-a, --all <all>', 'collect all curl', 'true')
     .option('-u, --url <url>', 'URL to scrape', 'https://www.google.com')
@@ -28,8 +28,8 @@ program
 program.parse(process.argv);
 
 const options = program.opts();
-const skipKeywords = options.skipKeywords.split(',');
-const includeKeywords = options.includeKeywords.split(',');
+const skipKeywords = options.skipKeywords?.length ? options.skipKeywords.split(',') : [];
+const includeKeywords = options.includeKeywords?.length ? options.includeKeywords.split(',') : [];
 const httpMethods = options.methods.split(',');
 const saveDirectory = options.directory;
 const restore = options.restore == 'true';
