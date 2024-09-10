@@ -13,7 +13,7 @@ import { processJsonFile } from './generate_swagger_from_json.js';
 const program = new Command();
 
 program
-    .option('-sk, --skipKeywords <keywords>', 'Comma separated skip keywords', 'dist,assets,embed,Icons,static,auth,constants,locales,dcp-oauth,interaction,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co')
+    .option('-sk, --skipKeywords <keywords>', 'Comma separated skip keywords', 'dist,assets,embed,Icons,static,constants,locales,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co')
     .option('-ik, --includeKeywords <keywords>', 'Comma separated include keywords', '')
     .option('-b, --serverUrl <keywords>', 'provide server url', '')
     .option('-m, --methods <methods>', 'HTTP methods to scrape', 'POST,PUT,DELETE,GET')
@@ -125,7 +125,13 @@ if (options.generateSwagger) {
             const url = request.url();
 
             // Check if URL contains any of the skip keywords
-            if (skipKeywords.some(keyword => url.includes(keyword)) || !httpMethods.includes(request.method()) || includeKeywords.length && !includeKeywords.some(keyword => url.includes(keyword))) {
+            if (
+                !httpMethods.includes(request.method()) ||  // If the HTTP method is not included, go inside
+                (httpMethods.includes(request.method()) &&  // If the HTTP method is included, check the following conditions:
+                    (skipKeywords.some(keyword => url.includes(keyword)) ||  // If `url` contains any `skipKeywords`, go inside
+                    (includeKeywords.length && !includeKeywords.some(keyword => url.includes(keyword))))  // If `url` does not contain any `includeKeywords`, go inside
+                )
+            ) {
                 request.continue();
                 return;
             }
