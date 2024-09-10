@@ -1,5 +1,46 @@
 import fs from 'fs';
 
+// Function to extract query parameters from a URL
+const getQueryParameters = (url) => {
+    const urlObj = new URL(url);
+    const queryParams = [];
+    urlObj.searchParams.forEach((value, key) => {
+        queryParams.push({
+            name: key,
+            in: 'query',
+            schema: {
+                type: 'string'
+            },
+            example: value
+        });
+    });
+    return queryParams;
+};
+
+// Function to reconstruct the original cURL command
+const buildCurlCommand = (curlDetails) => {
+    const {
+        url,
+        method = 'get',
+        headers = {},
+        data
+    } = curlDetails;
+
+    let curlCommand = `curl -X ${method.toUpperCase()} "${url}"`;
+
+    // Add headers to the cURL command
+    Object.entries(headers).forEach(([headerName, headerValue]) => {
+        curlCommand += ` -H "${headerName}: ${headerValue}"`;
+    });
+
+    // Add data to the cURL command, if present and allowed for the method
+    if (data && data !== 'undefined' && !['get', 'head'].includes(method.toLowerCase())) {
+        curlCommand += ` --data '${JSON.stringify(data)}'`;
+    }
+
+    return curlCommand;
+};
+
 // Function to generate Swagger specification from parsed cURL details
 const generateSwagger = (curlDetails, baseURLs) => {
     const {
@@ -9,32 +50,29 @@ const generateSwagger = (curlDetails, baseURLs) => {
         data = {}
     } = curlDetails;
 
-    // Handle cases where data is 'undefined'
-    const requestBody = {
-        content: {
-            'application/json': {
-                schema: {
-                    type: 'object',
-                    properties: {}
+    // Extract query parameters from the URL
+    const queryParams = getQueryParameters(url);
+
+    // Handle cases where data is 'undefined' or the method doesn't support a body
+    let requestBody = null;
+    if (!['get', 'head'].includes(method.toLowerCase())) {
+        requestBody = {
+            content: {
+                'application/json': {
+                    schema: {
+                        type: 'object',
+                        example: data !== 'undefined' ? data : {}
+                    }
                 }
             }
-        }
-    };
-
-    if (data !== 'undefined') {
-        requestBody.content['application/json'].schema = {
-            type: 'object',
-            example: data
-        };
-    } else {
-        requestBody.content['application/json'].schema = {
-            type: 'object',
-            example: {}
         };
     }
 
     // Convert base URLs array to server objects for Swagger
     const servers = baseURLs.map(url => ({ url }));
+
+    // Reconstruct the cURL command
+    const curlCommand = buildCurlCommand(curlDetails);
 
     // Construct the Swagger specification
     const swagger = {
@@ -48,23 +86,34 @@ const generateSwagger = (curlDetails, baseURLs) => {
             [new URL(url).pathname]: {
                 [method.toLowerCase()]: {
                     summary: 'Converted from cURL',
-                    requestBody: requestBody,
+                    description: `cURL: \n\`${curlCommand}\``, // Add cURL as a description
+                    'x-curl-command': curlCommand, // Add cURL as an OpenAPI extension
+                    requestBody: requestBody, // Include requestBody only if method supports it
                     responses: {
                         '200': {
                             description: 'Successful response'
                         }
                     },
-                    parameters: Object.keys(headers).map(headerName => ({
-                        name: headerName,
-                        in: 'header',
-                        schema: {
-                            type: 'string'
-                        }
-                    }))
+                    parameters: [
+                        // Combine headers and query parameters
+                        ...Object.keys(headers).map(headerName => ({
+                            name: headerName,
+                            in: 'header',
+                            schema: {
+                                type: 'string'
+                            }
+                        })),
+                        ...queryParams
+                    ]
                 }
             }
         }
     };
+
+    // Remove requestBody if it's null
+    if (!requestBody) {
+        delete swagger.paths[new URL(url).pathname][method.toLowerCase()].requestBody;
+    }
 
     return swagger;
 };
