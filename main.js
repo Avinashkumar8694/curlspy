@@ -13,7 +13,8 @@ import { processJsonFile } from './generate_swagger_from_json.js';
 const program = new Command();
 
 program
-    .option('-k, --skipKeywords <keywords>', 'Comma separated skip keywords', 'dist,assets,embed,Icons,static,auth,constants,locales,dcp-oauth,interaction,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co')
+    .option('-sk, --skipKeywords <keywords>', 'Comma separated skip keywords', 'dist,assets,embed,Icons,static,auth,constants,locales,dcp-oauth,interaction,.js,.css,.ttf,.pdf,.png,.svg,.jpg,.ico,data:,www.google,analytics.,px.ads,googleads,/t.co')
+    .option('-ik, --includeKeywords <keywords>', '')
     .option('-m, --methods <methods>', 'HTTP methods to scrape', 'POST,PUT,DELETE,GET')
     .option('-a, --all <all>', 'collect all curl', 'true')
     .option('-u, --url <url>', 'URL to scrape', 'https://www.google.com')
@@ -28,6 +29,7 @@ program.parse(process.argv);
 
 const options = program.opts();
 const skipKeywords = options.skipKeywords.split(',');
+const includeKeywords = options.includeKeywords.split(',');
 const httpMethods = options.methods.split(',');
 const saveDirectory = options.directory;
 const restore = options.restore == 'true';
@@ -121,7 +123,7 @@ if (options.generateSwagger) {
             const url = request.url();
 
             // Check if URL contains any of the skip keywords
-            if (skipKeywords.some(keyword => url.includes(keyword)) || !httpMethods.includes(request.method())) {
+            if (skipKeywords.some(keyword => url.includes(keyword)) || !httpMethods.includes(request.method()) || includeKeywords.length && !includeKeywords.some(keyword => url.includes(keyword))) {
                 request.continue();
                 return;
             }
