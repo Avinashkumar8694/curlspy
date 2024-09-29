@@ -70,25 +70,95 @@ const playTestStep = async (step, page) => {
 const injectListeners = async (page) => {
     await page.evaluate(() => {
         const getSelector = (element) => {
-            let selector = element.tagName.toLowerCase();
-            if (element.id) {
-                selector += `#${element.id}`;
-            } else {
-                let parent = element.parentElement;
+            // Helper function to get unique attributes like ID or classes
+            const getUniqueAttribute = (el) => {
+                if (el.id) {
+                    return `#${el.id}`; // Use ID if present and unique
+                }
+                if (el.className && el.className.trim() !== '') {
+                    return `.${el.className.trim().split(/\s+/).join('.')}`; // Use class if available
+                }
+                return ''; // Fallback to tag name
+            };
+        
+            // Build the full selector by traversing up the DOM tree
+            const buildSelector = (el) => {
+                let selector = getUniqueAttribute(el) || el.tagName.toLowerCase();
+        
+                // If ID or class makes it unique, stop here
+                if (el.id || el.className) {
+                    return selector;
+                }
+        
+                // Continue with parent hierarchy if no unique selector found
+                let parent = el.parentElement;
                 while (parent) {
                     let siblingIndex = 1;
+                    let totalSameTagSiblings = 0;
+        
+                    // Calculate how many sibling elements of the same type exist
                     for (let sibling of parent.children) {
-                        if (sibling === element) {
-                            selector = `${parent.tagName.toLowerCase()} > ${selector}`;
-                            break;
+                        if (sibling.tagName === el.tagName) {
+                            totalSameTagSiblings++;
                         }
-                        siblingIndex++;
                     }
+        
+                    // Add nth-of-type if needed
+                    if (totalSameTagSiblings > 1) {
+                        siblingIndex = 1; // Reset index for nth-of-type
+                        for (let sibling of parent.children) {
+                            if (sibling === el) {
+                                selector = `${parent.tagName.toLowerCase()} > ${el.tagName.toLowerCase()}:nth-of-type(${siblingIndex}) > ${selector}`;
+                                break;
+                            }
+                            if (sibling.tagName === el.tagName) {
+                                siblingIndex++;
+                            }
+                        }
+                    } else {
+                        // If no nth-of-type is needed, just add parent tag
+                        selector = `${parent.tagName.toLowerCase()} > ${selector}`;
+                    }
+        
+                    el = parent;
                     parent = parent.parentElement;
                 }
-            }
-            return selector;
+        
+                return selector;
+            };
+        
+            // Final selector cleanup to avoid unnecessary child selectors
+            return cleanUpSelector(buildSelector(element));
         };
+        
+        // Helper to remove unnecessary extra elements like repeated tags in final selector
+        const cleanUpSelector = (xpath) => {
+            const parts = xpath.split(' > ');
+            
+            // Array to hold cleaned parts
+            const cleanedParts = [];
+            
+            for (let i = 0; i < parts.length; i++) {
+                const part = parts[i];
+        
+                // Check if the current part contains 'nth-of-type'
+                if (part.includes('nth-of-type')) {
+                    cleanedParts.push(part); // Keep the nth-of-type part
+                    
+                    // Skip the next part if it's the same element type (without nth-of-type)
+                    if (i + 1 < parts.length && parts[i + 1] === part.split(':nth-of-type')[0]) {
+                        i++; // Skip the next part
+                    }
+                } else {
+                    cleanedParts.push(part); // Add other parts
+                }
+            }
+        
+            // Join cleaned parts back into a single XPath string
+            return cleanedParts.join(' > ');
+        };
+        
+        
 
         // Remove existing listeners
         document.removeEventListener('click', window._clickListener);
@@ -141,7 +211,7 @@ const injectListeners = async (page) => {
         // Attach listeners
         document.addEventListener('click', window._clickListener);
         document.addEventListener('input', window._inputListener);
-        document.addEventListener('mouseover', window._hoverListener);
+        // document.addEventListener('mouseover', window._hoverListener);
         document.addEventListener('contextmenu', window._contextMenuListener);
         document.addEventListener('keydown', window._keyDownListener);
         document.addEventListener('change', window._changeListener);
@@ -170,6 +240,8 @@ const injectListeners = async (page) => {
     page.on('load', () => injectListeners(page));
     page.on('domcontentloaded', () => injectListeners(page));
 
+    // Navigate to URL
+    await page.goto(options.url);
     // Handle recorded test steps playback
     if (isPlaying) {
         if (fs.existsSync(testStepsFilePath)) {
@@ -182,8 +254,6 @@ const injectListeners = async (page) => {
         }
     }
 
-    // Navigate to URL
-    await page.goto(options.url);
 
     // Close the browser
     // await browser.close();
